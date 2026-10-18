@@ -104,18 +104,20 @@ sequenceDiagram
     participant App as Aplicação Python ReqAI
     participant IA as Serviço externo de IA
 
-    Note over Pessoa,IA: Fluxo conceitual; provedor, suporte a chave de idempotência e política de timeout precisam de confirmação.
+    Note over Pessoa,IA: Fluxo conceitual. Provedor e suporte a chave de idempotência e política de timeout precisam de confirmação.
 
     Pessoa->>UI: Preenche contexto e solicita geração
     UI->>App: gerar(contexto, chaveIdempotencia)
     App->>App: Validar entrada e consultar chave na sessão ativa
 
-    alt Mesmo pedido já concluído nesta sessão
-        App-->>UI: Retornar resultado já associado à chave
-        UI-->>Pessoa: Exibir resultado sem nova chamada à IA
-    else Mesmo pedido ainda em andamento
-        App-->>UI: Informar que a solicitação está em andamento
-        UI-->>Pessoa: Evitar envio concorrente duplicado
+    alt Chave de idempotência já registrada nesta sessão
+        alt Pedido já concluído
+            App-->>UI: Retornar resultado já associado à chave
+            UI-->>Pessoa: Exibir resultado sem nova chamada à IA
+        else Pedido ainda em andamento
+            App-->>UI: Informar que a solicitação está em andamento
+            UI-->>Pessoa: Evitar envio concorrente duplicado
+        end
     else Nova solicitação
         App->>App: Reservar chave e associar contexto
         App->>IA: Solicitar artefatos estruturados
@@ -128,8 +130,8 @@ sequenceDiagram
             Pessoa->>UI: Revisar e solicitar exportação
             UI-->>Pessoa: Disponibilizar Markdown ou JSON
         else Timeout aguardando o serviço
-            Note over App,IA: A chamada pode ter sido processada remotamente mesmo sem resposta; o resultado é desconhecido.
-            App-->>UI: Marcar resultado como indeterminado; não sinalizar sucesso
+            Note over App,IA: A chamada pode ter sido processada remotamente sem resposta. O resultado e desconhecido.
+            App-->>UI: Marcar resultado como indeterminado e não sinalizar sucesso
             UI-->>Pessoa: Informar timeout e não repetir automaticamente
 
             opt Pessoa solicita nova tentativa explícita com a mesma chave e contexto
@@ -150,7 +152,7 @@ sequenceDiagram
         end
     end
 
-    Note over UI,App: Deduplicação na sessão ativa não sobrevive ao encerramento da sessão; o MVP não define persistência durável.
+    Note over UI,App: Deduplicação na sessão ativa termina quando a sessão é encerrada. O MVP não define persistência durável.
 ```
 
 ### Decisões e ajustes aplicados ao conteúdo gerado
