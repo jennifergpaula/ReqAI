@@ -46,6 +46,7 @@ O ReqAI é concebido como uma ferramenta de apoio à fase inicial (*Discovery*) 
 **Restrições conhecidas:** execução local sem infraestrutura complexa de nuvem ou containers para o MVP; esforço de TCC estimado no README em aproximadamente dois meses e 32 horas. **Estado de implementação:** o `app.py` atual contém somente a tela inicial Streamlit; a integração com IA e a jornada de geração descritas são escopo pretendido, não comportamento implementado no código atual.
 
 A descrição consolidada, com fatos, hipóteses e lacunas separados, está em [discovery/descricao-sistema.md](discovery/descricao-sistema.md).
+Para o histórico de inferências, ajustes de documentação e decisões que ainda faltam para um handoff de implementação sem suposições, consulte [docs/decisoes/retrospectiva-documentacao-reqai.md](docs/decisoes/retrospectiva-documentacao-reqai.md).
 
 ## 📐 Diagramas Mermaid
 
