@@ -50,11 +50,11 @@ Para o histórico de inferências, ajustes de documentação e decisões que ain
 
 ## 📐 Diagramas Mermaid
 
-Os diagramas abaixo são conceituais e derivados do escopo documentado. Os fontes também estão disponíveis em [diagramas/containers.mmd](diagramas/containers.mmd) e [diagramas/sequencia-geracao.mmd](diagramas/sequencia-geracao.mmd).
+Os dois blocos Mermaid abaixo são renderizados diretamente nesta página pelo GitHub. Eles representam a visão estrutural do sistema e a jornada crítica de geração; os arquivos `.mmd` correspondentes estão em [diagramas/containers.mmd](diagramas/containers.mmd) e [diagramas/sequencia-geracao.mmd](diagramas/sequencia-geracao.mmd). Os diagramas são conceituais e não significam que os fluxos já estejam implementados.
 
 ### Visão estrutural — containers inspirados em C4
 
-O desenho mantém interface e processamento como um único container ReqAI: o README descreve uma aplicação Streamlit local, sem evidência de serviços implantáveis separados. O serviço de IA aparece como sistema externo, e a ausência de persistência em banco é indicada como limite do MVP.
+Este diagrama mostra a pessoa usuária, o container local ReqAI, a configuração e os arquivos exportados, além do serviço externo de IA. Interface e processamento ficam no mesmo container porque o escopo descreve uma aplicação Python/Streamlit local; a ausência de histórico em banco está marcada como limite do MVP.
 
 ```mermaid
 graph TB
@@ -94,7 +94,7 @@ graph TB
 
 ### Jornada comportamental — geração, timeout e idempotência conceitual
 
-O caminho feliz mostra geração, revisão e exportação. O caminho de timeout trata a resposta como indeterminada e exige nova tentativa explícita. A deduplicação ilustrada limita-se à sessão ativa; suporte a idempotência do provedor externo não foi confirmado nem implementado e uma repetição pode gerar nova chamada/custo.
+O diagrama de sequência cobre a jornada crítica de envio do contexto, geração, revisão e exportação, além do caminho de timeout. Se houver timeout, o resultado remoto é tratado como indeterminado e não há repetição automática. A deduplicação ilustrada limita-se à sessão ativa; suporte a idempotência do provedor externo não foi confirmado nem implementado, portanto uma repetição pode gerar nova chamada e custo.
 
 ```mermaid
 sequenceDiagram
