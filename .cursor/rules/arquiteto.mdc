@@ -1,0 +1,10 @@
+---
+description: Diretrizes de arquitetura e engenharia de requisitos do ReqAI
+---
+
+# ReqAI
+
+- Mantenha a aplicação simples e adequada ao escopo de um MVP de engenharia de requisitos.
+- Separe claramente requisitos funcionais, requisitos não funcionais e riscos.
+- Não exponha chaves de API; carregue configurações sensíveis a partir de variáveis de ambiente.
+- Preserve a documentação em português e atualize-a quando o comportamento do projeto mudar.
