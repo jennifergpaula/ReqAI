@@ -1,0 +1,41 @@
+# Diagrama estrutural de containers — ReqAI
+
+Visão conceitual inspirada em C4. A interface e o processamento Python aparecem como um único container porque o README descreve uma aplicação Streamlit executada localmente, não serviços implantáveis separados.
+
+```mermaid
+graph TB
+    user["Pessoa usuária<br/>Descreve o problema e revisa os artefatos"]
+
+    subgraph local["ReqAI — execução local"]
+        app["Container: aplicação ReqAI (Python + Streamlit)<br/>Formulário, orquestração, resultados e exportação"]
+        config["Configuração local<br/>GEMINI_API_KEY em variável de ambiente"]
+        export["Arquivos locais da pessoa usuária<br/>Markdown ou JSON exportado"]
+
+        config -.->|"credencial, não versionada"| app
+        app -->|"download solicitado"| export
+    end
+
+    ai["Sistema externo: serviço de IA generativa<br/>Provedor indicado pela chave GEMINI_API_KEY; confirmar"]
+
+    user -->|"preenche formulário e solicita geração"| app
+    app -->|"apresenta resultado para revisão humana"| user
+    app -->|"solicitação de geração; dados enviados precisam de aprovação"| ai
+    ai -->|"resposta estruturada"| app
+
+    no_db["Sem container de persistência no escopo descrito<br/>O README informa que o MVP não mantém histórico em banco"]
+    no_db -.->|"limite documentado"| app
+
+    classDef person fill:#08427b,color:#fff,stroke:#052e56
+    classDef container fill:#1168bd,color:#fff,stroke:#0b4884
+    classDef external fill:#999,color:#fff,stroke:#666
+    classDef localData fill:#438dd5,color:#fff,stroke:#2e6295
+    classDef note fill:#fff4cc,color:#333,stroke:#c9a227
+
+    class user person
+    class app container
+    class config,export localData
+    class ai external
+    class no_db note
+```
+
+**Fatos do README:** execução local com Python e Streamlit, uso de um serviço externo de IA, exportação Markdown/JSON e ausência de histórico em banco no MVP. A chave `GEMINI_API_KEY` sugere Gemini, mas o provedor efetivamente usado ainda precisa ser confirmado.

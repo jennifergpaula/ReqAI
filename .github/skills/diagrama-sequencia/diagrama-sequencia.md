@@ -1,0 +1,60 @@
+# Diagrama de sequência — geração, timeout e idempotência
+
+Fluxo conceitual: a idempotência local abaixo descreve deduplicação durante a sessão ativa. A garantia após timeout depende de capacidade do provedor externo ainda não confirmada.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Pessoa as Pessoa usuária
+    participant UI as Interface Streamlit
+    participant App as Aplicação Python ReqAI
+    participant IA as Serviço externo de IA
+
+    Note over Pessoa,IA: Provedor, suporte a chave de idempotência e política de timeout precisam de confirmação.
+
+    Pessoa->>UI: Preenche contexto e solicita geração
+    UI->>App: gerar(contexto, chaveIdempotencia)
+    App->>App: Validar entrada e consultar chave na sessão ativa
+
+    alt Mesmo pedido já concluído nesta sessão
+        App-->>UI: Retornar resultado já associado à chave
+        UI-->>Pessoa: Exibir resultado sem nova chamada à IA
+    else Mesmo pedido ainda em andamento
+        App-->>UI: Informar que a solicitação está em andamento
+        UI-->>Pessoa: Evitar envio concorrente duplicado
+    else Nova solicitação
+        App->>App: Reservar chave e associar contexto
+        App->>IA: Solicitar artefatos estruturados
+
+        alt Resposta recebida antes do timeout
+            IA-->>App: Resposta estruturada
+            App->>App: Validar estrutura e guardar resultado na sessão
+            App-->>UI: Resultado validado
+            UI-->>Pessoa: Exibir histórias, NFRs e matriz de riscos
+            Pessoa->>UI: Revisar e solicitar exportação
+            UI-->>Pessoa: Disponibilizar Markdown ou JSON
+        else Timeout aguardando o serviço
+            Note over App,IA: A chamada pode ter sido processada remotamente mesmo sem resposta; o resultado é desconhecido.
+            App-->>UI: Marcar resultado como indeterminado; não sinalizar sucesso
+            UI-->>Pessoa: Informar timeout e não repetir automaticamente
+
+            opt Pessoa solicita nova tentativa explícita com a mesma chave e contexto
+                Pessoa->>UI: Solicitar nova tentativa
+                UI->>App: repetir(chaveIdempotencia, mesmoContexto)
+                App->>App: Conferir chave e contexto da sessão
+                alt Provedor confirma suporte à idempotência
+                    App->>IA: Reenviar com a mesma chave de idempotência
+                    IA-->>App: Retornar resultado original ou processar uma vez
+                    App->>App: Validar estrutura e guardar resultado na sessão
+                    App-->>UI: Resultado validado
+                    UI-->>Pessoa: Exibir resultado para revisão
+                else Suporte do provedor ausente ou não confirmado
+                    App-->>UI: Não prometer deduplicação remota
+                    UI-->>Pessoa: Explicar que repetir pode gerar nova chamada e custo
+                end
+            end
+        end
+    end
+
+    Note over UI,App: A deduplicação na sessão ativa não sobrevive ao encerramento da sessão; o MVP não define persistência durável.
+```
